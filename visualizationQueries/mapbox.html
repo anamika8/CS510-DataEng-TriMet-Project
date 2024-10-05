@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trimet Data Visualizations</title>
+    <link rel="stylesheet" href="mapbox.css" />
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+  </head>
+
+  <body class="body">
+    <h1 class="header">Team Data Wranglers</h1>
+    <h2 class="header">Vaughn Poulo & Anamika Nayak</h2>
+
+    <h3 class="sub-header">Visualization #1</h3>
+    <div class="">
+      <div class="mapbox" id="map"></div>
+      <p class="description">
+        Bus Speed for Trip ID 228332442 which is the outbound trip of bus 3212
+        between 1:06 pm and 1:50 pm on Thursday, December 29, 2022. From this
+        visualization, we can see that the fastest speeds during this trip were
+        mostly on the highway portions of the trip.
+      </p>
+    </div>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoidnBvdWxvIiwiYSI6ImNsaTBsb3IxeDBkMHkzZm56Y2g1dnRndWgifQ.v_OvZKhA6ySAg6K72NvI2Q";
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: [-122.7075, 45.51994],
+        zoom: 12,
+      });
+
+      map.on("load", function () {
+        map.addSource("speeds", {
+          type: "geojson",
+          data: "data1.geojson",
+        });
+
+        map.addLayer(
+          {
+            id: "speeds-point",
+            type: "circle",
+            source: "speeds",
+            minzoom: 10,
+            paint: {
+              // increase the radius of the circle as the zoom level and speed value increases
+              "circle-radius": {
+                base: 1.75,
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [
+                    {
+                      zoom: 10,
+                      value: 1,
+                    },
+                    5,
+                  ],
+                ],
+              },
+              "circle-color": {
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [0, "rgb(244, 32, 4)"],
+                  [4, "rgb(244, 32, 4)"],
+                  [7, "rgb(209, 83, 4)"],
+                  [10, "rgb(245, 183, 121)"],
+                  [15, "rgb(249, 249, 71)"],
+                  [20, "rgb(4, 244, 32)"],
+                ],
+              },
+            },
+          },
+          "waterway-label"
+        );
+
+        map.on("click", "speeds-point", function (e) {
+          new mapboxgl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML("<b>Speed:</b> " + e.features[0].properties.speed)
+            .addTo(map);
+        });
+      });
+    </script>
+
+    <h3 class="sub-header">Visualization #2</h3>
+    <div class="">
+      <div class="mapbox" id="map2"></div>
+      <p class="description">
+        All outbound trips that occurred on route 17 on Saturday January 14,
+        2023 between 4pm and 6pm. We did not have data for route 65, so we
+        changed the visualization to route 17. We did not have much route data
+        on a Friday evening so we changed the day to a Saturday. This particular
+        route runs down Holgate St in SE Portland.
+      </p>
+    </div>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoidnBvdWxvIiwiYSI6ImNsaTBsb3IxeDBkMHkzZm56Y2g1dnRndWgifQ.v_OvZKhA6ySAg6K72NvI2Q";
+      var map2 = new mapboxgl.Map({
+        container: "map2",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: [-122.589054, 45.490224],
+        zoom: 12,
+      });
+
+      map2.on("load", function () {
+        map2.addSource("speeds", {
+          type: "geojson",
+          data: "data2.geojson",
+        });
+
+        map2.addLayer(
+          {
+            id: "speeds-point",
+            type: "circle",
+            source: "speeds",
+            minzoom: 10,
+            paint: {
+              // increase the radius of the circle as the zoom level and speed value increases
+              "circle-radius": {
+                base: 1.75,
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [
+                    {
+                      zoom: 10,
+                      value: 1,
+                    },
+                    5,
+                  ],
+                ],
+              },
+              "circle-color": {
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [0, "rgb(244, 32, 4)"],
+                  [4, "rgb(244, 32, 4)"],
+                  [7, "rgb(209, 83, 4)"],
+                  [10, "rgb(245, 183, 121)"],
+                  [15, "rgb(249, 249, 71)"],
+                  [20, "rgb(4, 244, 32)"],
+                ],
+              },
+            },
+          },
+          "waterway-label"
+        );
+
+        map2.on("click", "speeds-point", function (e) {
+          new mapboxgl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML("<b>Speed:</b> " + e.features[0].properties.speed)
+            .addTo(map2);
+        });
+      });
+    </script>
+
+    <h3 class="sub-header">Visualization #3</h3>
+    <div class="">
+      <div class="mapbox" id="map3"></div>
+      <p class="description">
+        All bus routes that travel to or from Portland State University on
+        Sunday January 8, 2023 between 9am and 11am. We did this by finding the
+        GPS coordinates of the edges of the Portland State Campus. Then we wrote
+        the query (see below) that finds all trip events that stop within that
+        zone. We then queried all the data for every trip that satisfied the
+        criteria. The visualization shows all bus routes that at one point or
+        another travel traveled through the Portland State campus.
+      </p>
+    </div>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoidnBvdWxvIiwiYSI6ImNsaTBsb3IxeDBkMHkzZm56Y2g1dnRndWgifQ.v_OvZKhA6ySAg6K72NvI2Q";
+      var map3 = new mapboxgl.Map({
+        container: "map3",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: [-122.679565, 45.512794],
+        zoom: 11,
+      });
+
+      map3.on("load", function () {
+        map3.addSource("speeds", {
+          type: "geojson",
+          data: "data3.geojson",
+        });
+
+        map3.addLayer(
+          {
+            id: "speeds-point",
+            type: "circle",
+            source: "speeds",
+            minzoom: 10,
+            paint: {
+              // increase the radius of the circle as the zoom level and speed value increases
+              "circle-radius": {
+                base: 1.75,
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [
+                    {
+                      zoom: 10,
+                      value: 1,
+                    },
+                    5,
+                  ],
+                ],
+              },
+              "circle-color": {
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [0, "rgb(244, 32, 4)"],
+                  [4, "rgb(244, 32, 4)"],
+                  [7, "rgb(209, 83, 4)"],
+                  [10, "rgb(245, 183, 121)"],
+                  [15, "rgb(249, 249, 71)"],
+                  [20, "rgb(4, 244, 32)"],
+                ],
+              },
+            },
+          },
+          "waterway-label"
+        );
+
+        map3.on("click", "speeds-point", function (e) {
+          new mapboxgl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML("<b>Speed:</b> " + e.features[0].properties.speed)
+            .addTo(map3);
+        });
+      });
+    </script>
+
+    <h3 class="sub-header">Visualization #4</h3>
+    <div class="">
+      <div class="mapbox" id="map4"></div>
+      <p class="description">
+        The longest trip by time duration. This trip occurred on route 20 on
+        January 15, 2023 starting at 1:32pm and ending at 3:53pm - for a total
+        duration of 2 hours and 20 minutes. What stands out about this trip is
+        the distance that it covers. Starting in Gresham and ending in central
+        Beaverton certainly is a long trip. What is also clear from the
+        visualization is that the bus rarely traveled quickly. There is a small
+        portion of the trip that the bus was able to reach speeds that indicate
+        the green color. For most of the trip the bus was moving slowly.
+      </p>
+    </div>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoidnBvdWxvIiwiYSI6ImNsaTBsb3IxeDBkMHkzZm56Y2g1dnRndWgifQ.v_OvZKhA6ySAg6K72NvI2Q";
+      var map4 = new mapboxgl.Map({
+        container: "map4",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: [-122.628622, 45.517654],
+        zoom: 10.2,
+      });
+
+      map4.on("load", function () {
+        map4.addSource("speeds", {
+          type: "geojson",
+          data: "data4.geojson",
+        });
+
+        map4.addLayer(
+          {
+            id: "speeds-point",
+            type: "circle",
+            source: "speeds",
+            minzoom: 10,
+            paint: {
+              // increase the radius of the circle as the zoom level and speed value increases
+              "circle-radius": {
+                base: 1.75,
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [
+                    {
+                      zoom: 10,
+                      value: 1,
+                    },
+                    5,
+                  ],
+                ],
+              },
+              "circle-color": {
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [0, "rgb(244, 32, 4)"],
+                  [4, "rgb(244, 32, 4)"],
+                  [7, "rgb(209, 83, 4)"],
+                  [10, "rgb(245, 183, 121)"],
+                  [15, "rgb(249, 249, 71)"],
+                  [20, "rgb(4, 244, 32)"],
+                ],
+              },
+            },
+          },
+          "waterway-label"
+        );
+
+        map4.on("click", "speeds-point", function (e) {
+          new mapboxgl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML("<b>Speed:</b> " + e.features[0].properties.speed)
+            .addTo(map4);
+        });
+      });
+    </script>
+
+    <h3 class="sub-header">Visualization #5</h3>
+    <div class="">
+      <div class="mapbox" id="map5"></div>
+      <p class="description">
+        Visualize the busiest route and look at the speed and trip for one
+        afternoon 1pm - 3pm on Sunday January 15 2023. The busiest route was
+        measured as the most number of trips in any one hour. We then took that
+        route and looked at all its trips in the space of an afternoon. The
+        visualization is of route 9 which travels from the Gresham Transit
+        Center to the west side of Portland, ending its route in NW Portland by
+        Union Station. This is interesting because it shows that Sunday
+        afternoons there is a high demand for travel to and from Portland and
+        Gresham.
+      </p>
+    </div>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoidnBvdWxvIiwiYSI6ImNsaTBsb3IxeDBkMHkzZm56Y2g1dnRndWgifQ.v_OvZKhA6ySAg6K72NvI2Q";
+      var map5 = new mapboxgl.Map({
+        container: "map5",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: [-122.559357, 45.504181],
+        zoom: 10.9,
+      });
+
+      map5.on("load", function () {
+        map5.addSource("speeds", {
+          type: "geojson",
+          data: "data5a.geojson",
+        });
+
+        map5.addLayer(
+          {
+            id: "speeds-point",
+            type: "circle",
+            source: "speeds",
+            minzoom: 10,
+            paint: {
+              // increase the radius of the circle as the zoom level and speed value increases
+              "circle-radius": {
+                base: 1.75,
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [
+                    {
+                      zoom: 10,
+                      value: 1,
+                    },
+                    5,
+                  ],
+                ],
+              },
+              "circle-color": {
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [0, "rgb(244, 32, 4)"],
+                  [4, "rgb(244, 32, 4)"],
+                  [7, "rgb(209, 83, 4)"],
+                  [10, "rgb(245, 183, 121)"],
+                  [15, "rgb(249, 249, 71)"],
+                  [20, "rgb(4, 244, 32)"],
+                ],
+              },
+            },
+          },
+          "waterway-label"
+        );
+
+        map5.on("click", "speeds-point", function (e) {
+          new mapboxgl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML("<b>Speed:</b> " + e.features[0].properties.speed)
+            .addTo(map);
+        });
+      });
+    </script>
+
+    <h3 class="sub-header">Visualization #5b</h3>
+    <div class="">
+      <div class="mapbox" id="map5b"></div>
+      <p class="description">
+        Frequency of all routes on Saturday January 14, 2023. The color coding
+        to show the frequency of each route. We thought this visualization would
+        be interesting because it doesn’t visualize speed, but rather how often
+        different bus routes run on a high demand day - Saturday. It shows that
+        some routes require more planning by Trimet riders than others. The
+        routes in bright green run 25+ times a day. The routes in dark red run
+        about 10 times a day. It is also interesting to see that there are 3
+        routes that run most often and all three run from outside Portland into
+        downtown Portland.
+      </p>
+    </div>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoidnBvdWxvIiwiYSI6ImNsaTBsb3IxeDBkMHkzZm56Y2g1dnRndWgifQ.v_OvZKhA6ySAg6K72NvI2Q";
+      var map5b = new mapboxgl.Map({
+        container: "map5b",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: [-122.679565, 45.512794],
+        zoom: 11,
+      });
+
+      map5b.on("load", function () {
+        map5b.addSource("speeds", {
+          type: "geojson",
+          data: "data5b.geojson",
+        });
+
+        map5b.addLayer(
+          {
+            id: "speeds-point",
+            type: "circle",
+            source: "speeds",
+            minzoom: 10,
+            paint: {
+              // increase the radius of the circle as the zoom level and speed value increases
+              "circle-radius": {
+                base: 1.75,
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [
+                    {
+                      zoom: 10,
+                      value: 1,
+                    },
+                    5,
+                  ],
+                ],
+              },
+              "circle-color": {
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [0, "rgb(153, 0, 0)"], //DK RD
+                  [4, "rgb(255, 51, 51)"], //MD RD
+                  [8, "rgb(255, 153, 153)"], //LT RD
+                  [12, "rgb(255, 128, 0)"], //DK OR
+                  [14, "rgb(255, 178, 102)"], //MD OR
+                  [16, "rgb(255, 255, 0)"], //DK YW
+                  [18, "rgb(255, 255, 153)"], //MD YW
+                  [20, "rgb(51, 153, 255)"], //LT BL
+                  [22, "rgb(0, 0, 204)"], //DK BL
+                  [24, "rgb(178, 255, 102)"], //LT GR
+                  [26, "rgb(128, 255, 0)"], //MD GR
+                  [28, "rgb(76, 153, 0)"], //DK GR
+                ],
+              },
+            },
+          },
+          "waterway-label"
+        );
+
+        map5b.on("click", "speeds-point", function (e) {
+          new mapboxgl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML("<b>speed:</b> " + e.features[0].properties.speed)
+            .addTo(map5b);
+        });
+      });
+    </script>
+
+    <h3 class="sub-header">Visualization #5c</h3>
+    <div class="">
+      <div class="mapbox" id="map5c"></div>
+      <p class="description">
+        Average speed of each route. We wanted to see if some routes have a
+        higher average speed overall. For each route, we took all trips and
+        averaged the speed across all trips for that route. We then applied that
+        speed as the average speed for the route and visualized it. What we can
+        see from this is that some routes do run faster than others, but not
+        significantly. We thought maybe routes that traveled on the highway
+        would have a much higher average speed than those in the city. We can
+        see this to some extent (darker orange speed in the city). But mostly
+        what we take away is that the a average speed is not significantly
+        different between routes.
+      </p>
+    </div>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoidnBvdWxvIiwiYSI6ImNsaTBsb3IxeDBkMHkzZm56Y2g1dnRndWgifQ.v_OvZKhA6ySAg6K72NvI2Q";
+      var map5c = new mapboxgl.Map({
+        container: "map5c",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: [-122.628622, 45.517654],
+        zoom: 10.9,
+      });
+
+      map5c.on("load", function () {
+        map5c.addSource("speeds", {
+          type: "geojson",
+          data: "data5c.geojson",
+        });
+
+        map5c.addLayer(
+          {
+            id: "speeds-point",
+            type: "circle",
+            source: "speeds",
+            minzoom: 10,
+            paint: {
+              // increase the radius of the circle as the zoom level and speed value increases
+              "circle-radius": {
+                base: 1.75,
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [
+                    {
+                      zoom: 10,
+                      value: 1,
+                    },
+                    5,
+                  ],
+                ],
+              },
+              "circle-color": {
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [0, "rgb(244, 32, 4)"],
+                  [4, "rgb(244, 32, 4)"],
+                  [7, "rgb(209, 83, 4)"],
+                  [10, "rgb(245, 183, 121)"],
+                  [15, "rgb(249, 249, 71)"],
+                  [20, "rgb(4, 244, 32)"],
+                ],
+              },
+            },
+          },
+          "waterway-label"
+        );
+
+        map5c.on("click", "speeds-point", function (e) {
+          new mapboxgl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML("<b>Speed:</b> " + e.features[0].properties.speed)
+            .addTo(map);
+        });
+      });
+    </script>
+  </body>
+</html>

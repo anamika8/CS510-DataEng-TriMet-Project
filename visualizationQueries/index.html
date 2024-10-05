@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Document</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h3>Python SimpleHTTPServer</h3>
+    <div id="map"></div>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoidnBvdWxvIiwiYSI6ImNsaTBsb3IxeDBkMHkzZm56Y2g1dnRndWgifQ.v_OvZKhA6ySAg6K72NvI2Q";
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: [-122.679565, 45.512794],
+        zoom: 12,
+      });
+
+      map.on("load", function () {
+        map.addSource("speeds", {
+          type: "geojson",
+          data: "data5b.geojson",
+        });
+
+        map.addLayer(
+          {
+            id: "speeds-point",
+            type: "circle",
+            source: "speeds",
+            minzoom: 10,
+            paint: {
+              // increase the radius of the circle as the zoom level and speed value increases
+              "circle-radius": {
+                base: 1.75,
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [
+                    {
+                      zoom: 10,
+                      value: 1,
+                    },
+                    5,
+                  ],
+                ],
+              },
+              "circle-color": {
+                property: "speed",
+                type: "exponential",
+                stops: [
+                  [0, "rgb(153, 0, 0)"], //DK RD
+                  [4, "rgb(255, 51, 51)"], //MD RD
+                  [8, "rgb(255, 153, 153)"], //LT RD
+                  [12, "rgb(255, 128, 0)"], //DK OR
+                  [14, "rgb(255, 178, 102)"], //MD OR
+                  [16, "rgb(255, 255, 0)"], //DK YW
+                  [18, "rgb(255, 255, 153)"], //MD YW
+                  [20, "rgb(51, 153, 255)"], //LT BL
+                  [22, "rgb(0, 0, 204)"], //DK BL
+                  [24, "rgb(178, 255, 102)"], //LT GR
+                  [26, "rgb(128, 255, 0)"], //MD GR
+                  [28, "rgb(76, 153, 0)"], //DK GR
+                ],
+              },
+            },
+          },
+          "waterway-label"
+        );
+
+        map.on("click", "speeds-point", function (e) {
+          new mapboxgl.Popup()
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML("<b>speed:</b> " + e.features[0].properties.speed)
+            .addTo(map);
+        });
+      });
+    </script>
+  </body>
+</html>

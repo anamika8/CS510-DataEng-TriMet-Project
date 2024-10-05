@@ -1,0 +1,49 @@
+:root{
+    --orange: #D34727;
+    --blue: #0a559e;
+    --white: #ffffff;
+}
+
+.body {
+    margin: 30px;
+    margin-bottom: 300px;
+    padding: 0px;
+    background-color: var(--blue);
+    color: var(--white);
+}
+
+.header {
+    margin-top: 10px;
+    margin-bottom: 0px;
+    text-align: center;
+}  
+
+.sub-header{
+    margin-top: 90px;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+.mapbox{
+    border-radius: 10px;
+    display: inline-block;
+    vertical-align: middle;
+    width: 800px;
+    height: 600px;
+}
+
+.description{
+    font-size: 110%;
+    display: inline-block;
+    margin: auto 20px;
+    vertical-align: middle;
+    width: 40%;
+}
+
+.description:hover{
+    color: #D34727;
+}
